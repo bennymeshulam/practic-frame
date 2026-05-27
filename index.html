@@ -146,7 +146,7 @@ select { cursor:pointer; appearance:none; background-image:url("data:image/svg+x
   <div class="overlay-box">
     <div class="spinner"></div>
     <div class="overlay-txt">שולח את ההזמנה...</div>
-    <div class="overlay-sub">מייצר PDF חתום ושולח מייל</div>
+    <div class="overlay-sub">שולח מייל ומוריד PDF חתום...</div>
   </div>
 </div>
 
@@ -302,7 +302,7 @@ select { cursor:pointer; appearance:none; background-image:url("data:image/svg+x
 
   <div class="submit-area">
     <button type="submit" class="btn-submit" id="submitBtn">שליחת הזמנה ✓</button>
-    <p class="submit-note">תקבלו PDF חתום למייל תוך שניות - Practice Frame תחזור אליכם תוך יום עסקים</p>
+    <p class="submit-note">הטופס החתום יורד אוטומטית - ועידית תחזור אליכם תוך יום עסקים</p>
   </div>
 
 </div>
@@ -553,11 +553,18 @@ document.getElementById('orderForm').addEventListener('submit', async function(e
 
   try {
     // Send to Eidit
+    // צמצום החתימה לשליחה
+    const smallCanvas = document.createElement('canvas');
+    smallCanvas.width = 300; smallCanvas.height = 90;
+    const sc = smallCanvas.getContext('2d');
+    sc.drawImage(canvas, 0, 0, 300, 90);
+    const sigSmall = smallCanvas.toDataURL('image/jpeg', 0.4).split(',')[1];
+
     await emailjs.send(CONFIG.EMAILJS_SERVICE_ID, CONFIG.EMAILJS_TEMPLATE_ID, {
       to_email:     CONFIG.EIDIT_EMAIL,
       to_name:      'Practice Frame',
       subject:      '[Practice Frame] הזמנה חדשה - ' + data.fn,
-      message:      'הזמנה חדשה התקבלה מ-' + data.fn + '. פרטים מלאים למטה.',
+      message:      'הזמנה חדשה התקבלה מ-' + data.fn + '. פרטים מלאים למטה.<br><br><strong>חתימת הלקוח:</strong><br><img src="data:image/jpeg;base64,' + sigSmall + '" style="max-width:200px;border:1px solid #ccc;padding:4px;border-radius:4px;">',
       client_name:  data.fn,
       contact:      data.contact,
       phone:        data.phone,
@@ -583,6 +590,16 @@ document.getElementById('orderForm').addEventListener('submit', async function(e
       notes:        data.notes || 'אין',
       order_date:   dateStr
     });
+
+    // הורדת PDF אוטומטית
+    const sigDataUrl = canvas.toDataURL('image/png');
+    const pdfBase64 = generatePDF(data, sigDataUrl);
+    const linkEl = document.createElement('a');
+    linkEl.href = 'data:application/pdf;base64,' + pdfBase64;
+    linkEl.download = 'Practice-Frame-הזמנה-' + data.fn + '.pdf';
+    document.body.appendChild(linkEl);
+    linkEl.click();
+    document.body.removeChild(linkEl);
 
     // Success
     document.getElementById('overlay').classList.remove('show');
