@@ -397,7 +397,7 @@ function generatePDF(data, sigDataUrl) {
   doc.setTextColor(255,255,255);
   doc.setFont('helvetica','bold');
   doc.setFontSize(18);
-  doc.text('Practice Frame', W/2, 15, {align:'center'});
+  doc.text('Practice Frame', W/2, 18, {align:'center'});
   doc.setFontSize(12);
   doc.setFont('helvetica','normal');
   doc.text('המסגרת לשקט המקצועי שלך', W/2, 24, {align:'center'});
@@ -548,9 +548,6 @@ document.getElementById('orderForm').addEventListener('submit', async function(e
     startDate: document.getElementById('startDate').value
   };
 
-  const sigDataUrl = canvas.toDataURL('image/png');
-  const pdfBase64 = generatePDF(data, sigDataUrl);
-
   const pkgLabel = selPkg === 'monthly' ? 'ריטיינר חודשי - ₪2,500' : 'בנק שעות - ₪150 לשעה (20 שעות)';
   const dateStr = new Date().toLocaleDateString('he-IL');
 
@@ -568,8 +565,7 @@ document.getElementById('orderForm').addEventListener('submit', async function(e
       package:      pkgLabel,
       start_date:   data.startDate || 'לא צוין',
       notes:        data.notes || 'אין',
-      order_date:   dateStr,
-      pdf_base64:   pdfBase64
+      order_date:   dateStr
     });
 
     // Send to client
@@ -585,8 +581,7 @@ document.getElementById('orderForm').addEventListener('submit', async function(e
       package:      pkgLabel,
       start_date:   data.startDate || 'לא צוין',
       notes:        data.notes || 'אין',
-      order_date:   dateStr,
-      pdf_base64:   pdfBase64
+      order_date:   dateStr
     });
 
     // Success
