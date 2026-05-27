@@ -573,15 +573,11 @@ document.getElementById('orderForm').addEventListener('submit', async function(e
       order_date:   dateStr
     });
 
-    // הורדת PDF אוטומטית
+    // שמירת PDF לכפתור הורדה
     const sigDataUrl = canvas.toDataURL('image/png');
     const pdfBase64 = generatePDF(data, sigDataUrl);
-    const linkEl = document.createElement('a');
-    linkEl.href = 'data:application/pdf;base64,' + pdfBase64;
-    linkEl.download = 'Practice-Frame-הזמנה-' + data.fn + '.pdf';
-    document.body.appendChild(linkEl);
-    linkEl.click();
-    document.body.removeChild(linkEl);
+    window._pdfData = 'data:application/pdf;base64,' + pdfBase64;
+    window._pdfName = 'Practice-Frame-Order.pdf';
 
     // Success
     document.getElementById('overlay').classList.remove('show');
@@ -600,6 +596,17 @@ document.getElementById('orderForm').addEventListener('submit', async function(e
 });
 
 document.getElementById('startDate').min = new Date().toISOString().split('T')[0];
+
+function downloadPDF() {
+  if(!window._pdfData) return;
+  const a = document.createElement('a');
+  a.href = window._pdfData;
+  a.download = window._pdfName || 'Practice-Frame-Order.pdf';
+  a.target = '_blank';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
 </script>
 </body>
 </html>
